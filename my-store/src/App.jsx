@@ -1,7 +1,6 @@
 import { useState } from "react";
 import "./App.css";
 
-/* PRODUCTS WITH DIFFERENT IMAGES */
 const productsData = [
   ...Array.from({ length: 50 }, (_, i) => {
     const categories = ["Western", "Traditional", "Kurta"];
@@ -45,6 +44,7 @@ const productsData = [
   })
 ];
 
+
 function App() {
   const [user, setUser] = useState(null);
   const [isSignup, setIsSignup] = useState(false);
@@ -62,7 +62,6 @@ function App() {
   return <MainApp user={user} setUser={setUser} />;
 }
 
-/* AUTH */
 function Auth({ setUser, isSignup, setIsSignup }) {
   const [form, setForm] = useState({
     name: "",
@@ -114,13 +113,29 @@ function Auth({ setUser, isSignup, setIsSignup }) {
   );
 }
 
-/* MAIN APP */
 function MainApp({ user, setUser }) {
   const [view, setView] = useState("Home");
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+
+  const addToCart = (product) => {
+    const exists = cart.find(item => item.id === product.id);
+    if (!exists) {
+      setCart([...cart, product]);
+    }
+  };
+
+  const toggleWishlist = (product) => {
+    const exists = wishlist.find(item => item.id === product.id);
+
+    if (exists) {
+      setWishlist(wishlist.filter(item => item.id !== product.id));
+    } else {
+      setWishlist([...wishlist, product]);
+    }
+  };
 
   const filteredProducts = productsData
     .filter(p => filter === "All" || p.category === filter)
@@ -179,17 +194,11 @@ function MainApp({ user, setUser }) {
                     <p>₹{product.price}</p>
 
                     <div className="actions">
-                      <button onClick={() => setCart([...cart, product])}>
+                      <button onClick={() => addToCart(product)}>
                         Add to Cart
                       </button>
 
-                      <button onClick={() => {
-                        if (isWishlisted) {
-                          setWishlist(wishlist.filter(i => i.id !== product.id));
-                        } else {
-                          setWishlist([...wishlist, product]);
-                        }
-                      }}>
+                      <button onClick={() => toggleWishlist(product)}>
                         {isWishlisted ? "Remove" : "Wishlist"}
                       </button>
                     </div>
@@ -197,6 +206,54 @@ function MainApp({ user, setUser }) {
                 );
               })}
             </div>
+          </>
+        )}
+
+        {view === "Cart" && (
+          <>
+            <h2>Cart</h2>
+            {cart.length === 0 ? (
+              <p>No items in cart</p>
+            ) : (
+              <div className="grid">
+                {cart.map(item => (
+                  <div className="card" key={item.id}>
+                    <img src={item.image} alt="" />
+                    <h3>{item.name}</h3>
+                    <p>₹{item.price}</p>
+
+                    <button onClick={() =>
+                      setCart(cart.filter(i => i.id !== item.id))
+                    }>
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {view === "Wishlist" && (
+          <>
+            <h2>Wishlist</h2>
+            {wishlist.length === 0 ? (
+              <p>No items in wishlist</p>
+            ) : (
+              <div className="grid">
+                {wishlist.map(item => (
+                  <div className="card" key={item.id}>
+                    <img src={item.image} alt="" />
+                    <h3>{item.name}</h3>
+                    <p>₹{item.price}</p>
+
+                    <button onClick={() => toggleWishlist(item)}>
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </>
         )}
 
@@ -210,6 +267,9 @@ function MainApp({ user, setUser }) {
             <p>Phone: {user.phone}</p>
           </div>
         )}
+
+        {view === "About" && <p>This is a clothing store.</p>}
+        {view === "Orders" && <p>No orders yet.</p>}
       </div>
     </div>
   );
