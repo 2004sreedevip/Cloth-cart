@@ -1,278 +1,298 @@
 import { useState } from "react";
 import "./App.css";
 
-const productsData = [
-  ...Array.from({ length: 50 }, (_, i) => {
-    const categories = ["Western", "Traditional", "Kurta"];
-    const category = categories[i % 3];
+const menImages = Object.values(
+  import.meta.glob("./assets/images/img*", { eager: true })
+).map((m) => m.default);
 
-    const westernImages = [
-      "https://images.pexels.com/photos/994523/pexels-photo-994523.jpeg",
-      "https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg",
-      "https://images.pexels.com/photos/1126993/pexels-photo-1126993.jpeg"
-    ];
+const womenImages = Object.values(
+  import.meta.glob("./assets/images/wimg*", { eager: true })
+).map((m) => m.default);
 
-    const traditionalImages = [
-      "https://images.pexels.com/photos/1755428/pexels-photo-1755428.jpeg",
-      "https://images.pexels.com/photos/1820575/pexels-photo-1820575.jpeg",
-      "https://images.pexels.com/photos/2681751/pexels-photo-2681751.jpeg"
-    ];
+const kidsImages = Object.values(
+  import.meta.glob("./assets/images/kim*", { eager: true })
+).map((m) => m.default);
 
-    const kurtaImages = [
-      "https://images.pexels.com/photos/1760900/pexels-photo-1760900.jpeg",
-      "https://images.pexels.com/photos/1918443/pexels-photo-1918443.jpeg",
-      "https://images.pexels.com/photos/2065195/pexels-photo-2065195.jpeg"
-    ];
-
-    let image;
-
-    if (category === "Western") {
-      image = westernImages[i % westernImages.length];
-    } else if (category === "Traditional") {
-      image = traditionalImages[i % traditionalImages.length];
-    } else {
-      image = kurtaImages[i % kurtaImages.length];
-    }
-
-    return {
-      id: i + 1,
-      name: `${category} Outfit ${i + 1}`,
-      price: 800 + i * 40,
-      category,
-      image
-    };
-  })
+const reviewsList = [
+  "Very good quality",
+  "Worth the price",
+  "Excellent product",
+  "Nice fabric",
+  "Highly recommended"
 ];
 
+let id = 1;
 
-function App() {
+const products = [
+  ...menImages.map((img) => ({
+    id: id++,
+    name: "Men Wear",
+    price: 1000 + Math.floor(Math.random() * 2000),
+    desc: "Stylish men's fashion",
+    category: "Men",
+    image: img,
+    rating: (Math.random() * 2 + 3).toFixed(1),
+    review: reviewsList[Math.floor(Math.random() * reviewsList.length)]
+  })),
+  ...womenImages.map((img) => ({
+    id: id++,
+    name: "Women Wear",
+    price: 1500 + Math.floor(Math.random() * 3000),
+    desc: "Elegant women's fashion",
+    category: "Women",
+    image: img,
+    rating: (Math.random() * 2 + 3).toFixed(1),
+    review: reviewsList[Math.floor(Math.random() * reviewsList.length)]
+  })),
+  ...kidsImages.map((img) => ({
+    id: id++,
+    name: "Kids Wear",
+    price: 800 + Math.floor(Math.random() * 1500),
+    desc: "Cute kids collection",
+    category: "Kids",
+    image: img,
+    rating: (Math.random() * 2 + 3).toFixed(1),
+    review: reviewsList[Math.floor(Math.random() * reviewsList.length)]
+  })),
+];
+
+export default function App() {
   const [user, setUser] = useState(null);
-  const [isSignup, setIsSignup] = useState(false);
-
-  if (!user) {
-    return (
-      <Auth
-        setUser={setUser}
-        isSignup={isSignup}
-        setIsSignup={setIsSignup}
-      />
-    );
-  }
-
-  return <MainApp user={user} setUser={setUser} />;
+  return !user ? <Auth setUser={setUser} /> : <MainApp user={user} setUser={setUser} />;
 }
 
-function Auth({ setUser, isSignup, setIsSignup }) {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    age: "",
-    gender: "",
-    phone: ""
-  });
+function Auth({ setUser }) {
+  const [signup, setSignup] = useState(false);
+  const [form, setForm] = useState({});
+  const [message, setMessage] = useState("");
+  const [showForgot, setShowForgot] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
 
-  const handleSubmit = () => {
-    if (!form.email) return alert("Enter email");
+  const handleLogin = () => {
+    if (!form.email) return setMessage("Email is required");
+    if (!form.password) return setMessage("Password is required");
+    setUser(form);
+  };
 
-    if (isSignup) {
-      localStorage.setItem("user", JSON.stringify(form));
-      setUser(form);
-    } else {
-      const saved = JSON.parse(localStorage.getItem("user"));
-      if (saved && saved.email === form.email) {
-        setUser(saved);
-      } else {
-        alert("User not found");
-      }
-    }
+  const handleSignup = () => {
+    if (!form.name) return setMessage("Username is required");
+    if (!form.email) return setMessage("Email is required");
+    if (!form.password) return setMessage("Password is required");
+    if (!form.mobile) return setMessage("Mobile number is required");
+    if (!form.gender || form.gender === "Select Gender")
+      return setMessage("Gender is required");
+    if (!form.age) return setMessage("Age is required");
+
+    if (!/^\d{10}$/.test(form.mobile))
+      return setMessage("Mobile number must be exactly 10 digits");
+
+    setUser(form);
+  };
+
+  const handleForgot = () => {
+    if (!resetEmail) return setMessage("Enter your email");
+    setMessage("Password reset link sent to your email");
+    setShowForgot(false);
   };
 
   return (
-    <div className="auth">
-      <h2>{isSignup ? "Create Account" : "Sign In"}</h2>
+    <div className="auth-container">
+      <div className="auth-left">
+        <h1>FASHION THAT <span>DEFINES YOU</span></h1>
+        <p>Discover your style with the latest trends</p>
+      </div>
 
-      {isSignup && (
-        <>
-          <input placeholder="Name" onChange={e => setForm({...form, name: e.target.value})} />
-          <input placeholder="Age" onChange={e => setForm({...form, age: e.target.value})} />
-          <input placeholder="Gender" onChange={e => setForm({...form, gender: e.target.value})} />
-          <input placeholder="Phone" onChange={e => setForm({...form, phone: e.target.value})} />
-        </>
-      )}
+      <div className="auth-box">
+        <h2>{signup ? "Create Account" : "Login"}</h2>
 
-      <input placeholder="Email" onChange={e => setForm({...form, email: e.target.value})} />
+        {signup && (
+          <>
+            <input placeholder="Username" onChange={(e)=>setForm({...form,name:e.target.value})}/>
+            <input placeholder="Email" onChange={(e)=>setForm({...form,email:e.target.value})}/>
+            <input type="password" placeholder="Password" onChange={(e)=>setForm({...form,password:e.target.value})}/>
+            <input placeholder="Mobile Number" onChange={(e)=>setForm({...form,mobile:e.target.value})}/>
+            <select onChange={(e)=>setForm({...form,gender:e.target.value})}>
+              <option>Select Gender</option>
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+            <input placeholder="Age" onChange={(e)=>setForm({...form,age:e.target.value})}/>
+          </>
+        )}
 
-      <button onClick={handleSubmit}>
-        {isSignup ? "Create Account" : "Sign In"}
-      </button>
+        {!signup && !showForgot && (
+          <>
+            <input placeholder="Email" onChange={(e)=>setForm({...form,email:e.target.value})}/>
+            <input type="password" placeholder="Password" onChange={(e)=>setForm({...form,password:e.target.value})}/>
+          </>
+        )}
 
-      <p onClick={() => setIsSignup(!isSignup)} className="link">
-        {isSignup ? "Already have an account? Sign in" : "New user? Create account"}
-      </p>
+        {!signup && showForgot && (
+          <>
+            <input
+              placeholder="Enter your email"
+              value={resetEmail}
+              onChange={(e)=>setResetEmail(e.target.value)}
+            />
+            <button className="login-btn" onClick={handleForgot}>
+              Send Reset Link
+            </button>
+          </>
+        )}
+
+        {!showForgot && (
+          <button className="login-btn" onClick={signup ? handleSignup : handleLogin}>
+            {signup ? "Create Account" : "Login"}
+          </button>
+        )}
+
+        {message && (
+          <p style={{ color: "lightgreen", textAlign: "center" }}>{message}</p>
+        )}
+
+        {!signup && !showForgot && (
+          <p className="forgot" onClick={()=>setShowForgot(true)}>
+            Forgot password?
+          </p>
+        )}
+
+        {showForgot && (
+          <p className="forgot" onClick={()=>setShowForgot(false)}>
+            Back to Login
+          </p>
+        )}
+
+        <p className="link" onClick={()=>{setSignup(!signup); setMessage("");}}>
+          {signup ? "Already have account? Sign in" : "New user? Sign up"}
+        </p>
+      </div>
     </div>
   );
 }
 
 function MainApp({ user, setUser }) {
-  const [view, setView] = useState("Home");
-  const [filter, setFilter] = useState("All");
-  const [search, setSearch] = useState("");
+  const [active, setActive] = useState("Home");
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  const [buyItem, setBuyItem] = useState(null);
 
-  const addToCart = (product) => {
-    const exists = cart.find(item => item.id === product.id);
-    if (!exists) {
-      setCart([...cart, product]);
-    }
-  };
-
-  const toggleWishlist = (product) => {
-    const exists = wishlist.find(item => item.id === product.id);
-
-    if (exists) {
-      setWishlist(wishlist.filter(item => item.id !== product.id));
-    } else {
-      setWishlist([...wishlist, product]);
-    }
-  };
-
-  const filteredProducts = productsData
-    .filter(p => filter === "All" || p.category === filter)
-    .filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = products.filter(
+    (p) => active === "Home" || p.category === active
+  );
 
   return (
-    <div className="app">
-
-      <div className="sidebar">
+    <>
+      <div className="navbar">
         <h2>Cloth Cart</h2>
 
-        <p onClick={() => setView("Home")} className={view === "Home" ? "active-nav" : ""}>Home</p>
-        <p onClick={() => setView("About")} className={view === "About" ? "active-nav" : ""}>About</p>
-        <p onClick={() => setView("Cart")} className={view === "Cart" ? "active-nav" : ""}>Cart</p>
-        <p onClick={() => setView("Wishlist")} className={view === "Wishlist" ? "active-nav" : ""}>Wishlist</p>
-        <p onClick={() => setView("Orders")} className={view === "Orders" ? "active-nav" : ""}>My Orders</p>
-        <p onClick={() => setView("Account")} className={view === "Account" ? "active-nav" : ""}>Account</p>
+        <div className="nav-links">
+          {["Home","Men","Women","Kids","Wishlist","Cart","Orders","Profile"].map(item=>(
+            <span key={item}
+              onClick={()=>{setActive(item); setBuyItem(null)}}
+              className={active===item ? "active-nav":""}>
+              {item}
+            </span>
+          ))}
+        </div>
 
-        <p onClick={() => setUser(null)}>Logout</p>
+        <button onClick={()=>setUser(null)}>Logout</button>
       </div>
 
-      <div className="main">
+      {buyItem && (
+        <div className="buy-page">
+          <div className="buy-card">
+            <img src={buyItem.image}/>
+            <h2>{buyItem.name}</h2>
+            <p>{buyItem.desc}</p>
+            <h3>₹{buyItem.price}</h3>
 
-        {view === "Home" && (
-          <>
-            <h1 className="logo">Cloth Cart</h1>
+            <h4>Customer Reviews</h4>
+            <p>Rating: {buyItem.rating} / 5</p>
+            <p>{buyItem.review}</p>
 
-            <input
-              className="search"
-              placeholder="Search products..."
-              onChange={e => setSearch(e.target.value)}
-            />
+            <textarea placeholder="Enter address" className="address"></textarea>
 
-            <div className="filters">
-              {["All", "Western", "Traditional", "Kurta"].map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setFilter(cat)}
-                  className={filter === cat ? "active-btn" : ""}
-                >
-                  {cat}
-                </button>
-              ))}
+            <div className="payment">
+              <label><input type="radio" name="pay"/> Cash on Delivery</label>
+              <label><input type="radio" name="pay"/> UPI</label>
+              <label><input type="radio" name="pay"/> Card</label>
             </div>
 
-            <div className="grid">
-              {filteredProducts.map(product => {
-                const isWishlisted = wishlist.some(i => i.id === product.id);
-
-                return (
-                  <div className="card" key={product.id}>
-                    <img src={product.image} alt="" />
-
-                    <h3>{product.name}</h3>
-                    <p>{product.category}</p>
-                    <p>₹{product.price}</p>
-
-                    <div className="actions">
-                      <button onClick={() => addToCart(product)}>
-                        Add to Cart
-                      </button>
-
-                      <button onClick={() => toggleWishlist(product)}>
-                        {isWishlisted ? "Remove" : "Wishlist"}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {view === "Cart" && (
-          <>
-            <h2>Cart</h2>
-            {cart.length === 0 ? (
-              <p>No items in cart</p>
-            ) : (
-              <div className="grid">
-                {cart.map(item => (
-                  <div className="card" key={item.id}>
-                    <img src={item.image} alt="" />
-                    <h3>{item.name}</h3>
-                    <p>₹{item.price}</p>
-
-                    <button onClick={() =>
-                      setCart(cart.filter(i => i.id !== item.id))
-                    }>
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {view === "Wishlist" && (
-          <>
-            <h2>Wishlist</h2>
-            {wishlist.length === 0 ? (
-              <p>No items in wishlist</p>
-            ) : (
-              <div className="grid">
-                {wishlist.map(item => (
-                  <div className="card" key={item.id}>
-                    <img src={item.image} alt="" />
-                    <h3>{item.name}</h3>
-                    <p>₹{item.price}</p>
-
-                    <button onClick={() => toggleWishlist(item)}>
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {view === "Account" && (
-          <div>
-            <h2>User Details</h2>
-            <p>Name: {user.name}</p>
-            <p>Email: {user.email}</p>
-            <p>Age: {user.age}</p>
-            <p>Gender: {user.gender}</p>
-            <p>Phone: {user.phone}</p>
+            <button className="place-order">Place Order</button>
+            <button onClick={()=>setBuyItem(null)}>Cancel</button>
           </div>
-        )}
+        </div>
+      )}
 
-        {view === "About" && <p>This is a clothing store.</p>}
-        {view === "Orders" && <p>No orders yet.</p>}
+      {active==="Cart" && (
+        <Section
+          title="Cart"
+          items={cart}
+          onRemove={(id)=>setCart(cart.filter(i=>i.id!==id))}
+          onBuy={(item)=>setBuyItem(item)}
+        />
+      )}
+
+      {active==="Wishlist" && (
+        <Section
+          title="Wishlist"
+          items={wishlist}
+          onRemove={(id)=>setWishlist(wishlist.filter(i=>i.id!==id))}
+        />
+      )}
+
+      {active==="Profile" && (
+        <div className="profile">
+          <h2>User Profile</h2>
+          <p>Name: {user.name}</p>
+          <p>Email: {user.email}</p>
+          <p>Mobile: {user.mobile}</p>
+          <p>Gender: {user.gender}</p>
+          <p>Age: {user.age}</p>
+        </div>
+      )}
+
+      {!buyItem && !["Cart","Wishlist","Profile"].includes(active) && (
+        <div className="grid">
+          {filtered.map(p=>(
+            <div className="card" key={p.id}>
+              <img src={p.image}/>
+              <h3>{p.name}</h3>
+              <p>{p.desc}</p>
+              <p>₹{p.price}</p>
+              <p>Rating: {p.rating} / 5</p>
+
+              <div className="actions">
+                <button onClick={()=>setCart([...cart,p])}>Cart</button>
+                <button onClick={()=>setWishlist([...wishlist,p])}>Wishlist</button>
+                <button onClick={()=>setBuyItem(p)}>Buy Now</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function Section({ title, items, onRemove, onBuy }) {
+  return (
+    <div>
+      <h2 style={{ padding: "20px" }}>{title}</h2>
+      <div className="grid">
+        {items.map(i=>(
+          <div className="card" key={i.id}>
+            <img src={i.image}/>
+            <h3>{i.name}</h3>
+
+            <button onClick={()=>onRemove(i.id)}>Remove</button>
+
+            {onBuy && (
+              <button onClick={()=>onBuy(i)}>Buy Now</button>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
 }
-
-export default App;
