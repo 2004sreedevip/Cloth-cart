@@ -15,9 +15,9 @@ import {
   RiMapPinLine,
   RiBankCardLine,
   RiTruckLine,
+  RiSearchLine
 } from "react-icons/ri";
 
-/* ── Image imports ───────────────────────────────────────── */
 const menImages = Object.values(
   import.meta.glob("./assets/images/img*", { eager: true })
 ).map((m) => m.default);
@@ -30,9 +30,8 @@ const kidsImages = Object.values(
   import.meta.glob("./assets/images/kim*", { eager: true })
 ).map((m) => m.default);
 
-/* ── Data ────────────────────────────────────────────────── */
 const reviewsList = [
-  "Very good quality",
+  "good quality",
   "Worth the price",
   "Excellent product",
   "Nice fabric",
@@ -74,7 +73,6 @@ const products = [
   })),
 ];
 
-/* ── Root ────────────────────────────────────────────────── */
 export default function App() {
   const [user, setUser] = useState(null);
   return !user ? (
@@ -84,7 +82,6 @@ export default function App() {
   );
 }
 
-/* ── Star Rating ─────────────────────────────────────────── */
 function StarRating({ rating }) {
   const filled = Math.round(parseFloat(rating));
   return (
@@ -101,7 +98,7 @@ function StarRating({ rating }) {
   );
 }
 
-/* ── Auth ────────────────────────────────────────────────── */
+/* ── Authentication ── */
 function Auth({ setUser }) {
   const [signup, setSignup] = useState(false);
   const [form, setForm] = useState({});
@@ -123,7 +120,7 @@ function Auth({ setUser }) {
       return setMessage("Gender is required");
     if (!form.age) return setMessage("Age is required");
     if (!/^\d{10}$/.test(form.mobile))
-      return setMessage("Mobile number must be exactly 10 digits");
+      return setMessage("Mobile number must be 10 digits");
     setMessage("");
     setUser(form);
   };
@@ -234,7 +231,6 @@ function Auth({ setUser }) {
   );
 }
 
-/* ── Main App ────────────────────────────────────────────── */
 function MainApp({ user, setUser }) {
   const [active, setActive] = useState("Home");
   const [cart, setCart] = useState([]);
@@ -243,6 +239,8 @@ function MainApp({ user, setUser }) {
   const [orders, setOrders] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [search, setSearch] = useState("");
+  const [address, setAddress] = useState("");
 
   const showToast = (msg) => {
     setToast(msg);
@@ -268,9 +266,14 @@ function MainApp({ user, setUser }) {
     setSidebarOpen(false);
   };
 
-  const filtered = products.filter(
-    (p) => active === "Home" || p.category === active
-  );
+ const filtered = products.filter((p) => {
+  const matchCategory = active === "Home" || p.category === active;
+  const matchSearch =
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.desc.toLowerCase().includes(search.toLowerCase());
+
+  return matchCategory && matchSearch;
+});
 
   const navItems = ["Home", "Men", "Women", "Kids"];
 
@@ -340,11 +343,19 @@ function MainApp({ user, setUser }) {
         </button>
       </div>
 
-      {/* Top bar */}
       <header className="topbar">
         <button className="hamburger" onClick={() => setSidebarOpen(true)}>
           <RiMenuLine size={24} />
         </button>
+         <div className="search-container">
+            <RiSearchLine className="search-icon" />
+            <input
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="search-input"
+            />
+</div>
 
         <div className="topbar-logo">Cloth Cart</div>
 
@@ -407,8 +418,6 @@ function MainApp({ user, setUser }) {
       </header>
 
       <main className="main-content">
-
-        {/* ── Buy Page ── */}
         {buyItem && (
           <div className="buy-page">
             <div className="buy-layout">
@@ -430,10 +439,12 @@ function MainApp({ user, setUser }) {
                     <RiMapPinLine size={13} style={{ marginRight: 6 }} />
                     Delivery Address
                   </label>
-                  <textarea
-                    className="buy-address"
-                    placeholder="Enter your full address..."
-                  />
+                   <textarea
+                        className="buy-address"
+                        placeholder="Enter your full address..."
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                      />
 
                   <label className="form-label">
                     <RiBankCardLine size={13} style={{ marginRight: 6 }} />
@@ -457,14 +468,21 @@ function MainApp({ user, setUser }) {
                     <button
                       className="place-btn"
                       onClick={() => {
-                        setOrders([
-                          ...orders,
-                          { ...buyItem, orderId: Date.now() },
-                        ]);
-                        setBuyItem(null);
-                        setActive("Orders");
-                        showToast("Order placed successfully");
-                      }}
+                          if (!address.trim()) {
+                            showToast("Please enter address");
+                            return;
+                          }
+
+                          setOrders([
+                            ...orders,
+                            { ...buyItem, orderId: Date.now() },
+                          ]);
+
+                          setAddress("");
+                          setBuyItem(null);
+                          setActive("Orders");
+                          showToast("Order placed successfully");
+                        }}
                     >
                       <RiCheckLine size={16} style={{ marginRight: 8 }} />
                       Place Order
@@ -483,7 +501,6 @@ function MainApp({ user, setUser }) {
           </div>
         )}
 
-        {/* ── Cart ── */}
         {!buyItem && active === "Cart" && (
           <Section
             title="Your Cart"
@@ -495,7 +512,6 @@ function MainApp({ user, setUser }) {
           />
         )}
 
-        {/* ── Wishlist ── */}
         {!buyItem && active === "Wishlist" && (
           <Section
             title="Wishlist"
@@ -509,7 +525,6 @@ function MainApp({ user, setUser }) {
           />
         )}
 
-        {/* ── Orders ── */}
         {!buyItem && active === "Orders" && (
           <div className="page-section">
             <div className="section-header">
@@ -579,7 +594,6 @@ function MainApp({ user, setUser }) {
           </div>
         )}
 
-        {/* ── Product Grid ── */}
         {!buyItem &&
           !["Cart", "Wishlist", "Profile", "Orders"].includes(active) && (
             <div className="page-section">
@@ -670,7 +684,7 @@ function MainApp({ user, setUser }) {
   );
 }
 
-/* ── Section (Cart / Wishlist) ───────────────────────────── */
+/* ── Section (Cart / Wishlist) ─ */
 function Section({ title, subtitle, emptyIcon, items, onRemove, onBuy }) {
   return (
     <div className="page-section">

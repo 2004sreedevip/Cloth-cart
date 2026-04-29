@@ -1,7 +1,6 @@
-/* ── Imports ─────────────────────────────────────────────── */
+
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap");
 
-/* ── Reset & Root ─────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -227,7 +226,6 @@ body {
   color: var(--black);
 }
 
-/* ── App Shell ────────────────────────────────────────────── */
 .app-shell {
   min-height: 100vh;
   display: flex;
@@ -235,7 +233,6 @@ body {
   background: var(--surface);
 }
 
-/* ── Toast ────────────────────────────────────────────────── */
 .toast {
   position: fixed;
   bottom: 30px;
@@ -256,7 +253,6 @@ body {
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-/* ── Sidebar ──────────────────────────────────────────────── */
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
@@ -356,7 +352,6 @@ body {
 }
 .sidebar-logout:hover { border-color: var(--gold); color: var(--gold); }
 
-/* ── Topbar ───────────────────────────────────────────────── */
 .topbar {
   position: sticky;
   top: 0;
@@ -470,10 +465,8 @@ body {
 }
 .logout-btn:hover { border-color: var(--ink); color: var(--ink); }
 
-/* ── Main Content ─────────────────────────────────────────── */
 .main-content { flex: 1; }
 
-/* ── Hero Banner ──────────────────────────────────────────── */
 .hero-banner {
   background: var(--ink);
   color: var(--white);
@@ -512,7 +505,6 @@ body {
   font-weight: 300;
 }
 
-/* ── Page Section ─────────────────────────────────────────── */
 .page-section { padding: 48px 40px; }
 
 .section-header {
@@ -538,7 +530,6 @@ body {
   letter-spacing: 0.06em;
 }
 
-/* ── Product Grid ─────────────────────────────────────────── */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -666,13 +657,11 @@ body {
 
 .buy-now-btn:hover { background: var(--gold); color: var(--black); }
 
-/* ── Stars ────────────────────────────────────────────────── */
 .stars { display: flex; align-items: center; gap: 2px; margin: 6px 0; }
 .star { color: #ddd; font-size: 14px; }
 .star.filled { color: var(--gold); }
 .rating-num { font-size: 12px; color: var(--ash); margin-left: 6px; }
 
-/* ── Buy Page ─────────────────────────────────────────────── */
 .buy-page { padding: 48px 40px; }
 
 .buy-layout {
@@ -825,7 +814,6 @@ body {
 }
 .remove-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-/* ── Empty State ──────────────────────────────────────────── */
 .empty-state {
   text-align: center;
   padding: 80px 20px;
@@ -833,7 +821,6 @@ body {
 }
 .empty-icon { font-size: 48px; margin-bottom: 16px; }
 
-/* ── Orders ───────────────────────────────────────────────── */
 .orders-list { display: flex; flex-direction: column; gap: 20px; }
 
 .order-card {
@@ -870,7 +857,6 @@ body {
   letter-spacing: 0.08em;
 }
 
-/* ── Profile ──────────────────────────────────────────────── */
 .profile-card {
   max-width: 480px;
   background: var(--white);
@@ -928,7 +914,6 @@ body {
   font-weight: 400;
 }
 
-/* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .auth-left { padding: 60px 48px; }
   .topbar-nav { gap: 0; }
@@ -1007,4 +992,26 @@ body {
   border-color: #e05555;
   color: #e05555;
   background: #fff5f5;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background: #f0ece4;
+  padding: 6px 12px;
+  border-radius: 20px;
+  gap: 6px;
+}
+
+.search-icon {
+  color: #6b6b6b;
+  font-size: 16px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  width: 180px;
 }
